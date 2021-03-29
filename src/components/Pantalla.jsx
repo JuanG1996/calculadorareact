@@ -7,7 +7,6 @@ const CalPantalla = styled.div`
     background-color: rgba(39, 33, 33, 0.89);
     display: flex;
     flex-direction: column;
-    text-align: right;
 `;
 
 const PantallaHistorial = styled.div`
@@ -25,19 +24,21 @@ const PantallaHistorial = styled.div`
 
 const PantallaActual = styled.div`
     height: 80%;
+    background-color: transparent;
+    border: none;
     color: #fff;
     font-size: 50px;
+    user-select: none;
+    overflow: hidden;
     display: flex;
     justify-content: flex-end;
-    align-items: flex-end;
-    overflow: hidden;
 `;
 
 const Pantalla = ({infoPantalla, pantalla, historial}) => {
     return ( 
         <CalPantalla>
             <PantallaHistorial>{historial}</PantallaHistorial>
-            <PantallaActual>{pantalla}</PantallaActual>
+            <PantallaActual><span>{pantalla}</span></PantallaActual>
         </CalPantalla>
      );
 }
