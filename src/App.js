@@ -40,8 +40,6 @@ function App() {
   //Pantalla de historial donde se muestra lo que ha hecho el usuario
   const [historial, cambiarHistorial] = useState("");
 
-  let infoPantalla = "";
-
   useEffect(()=>{
     //**Evitamos que se ejecute 
     //  al inicio de la app
@@ -58,6 +56,12 @@ function App() {
         
         //**Si NO se presiono un numero
       }else{
+
+      if(pantalla === "" && (operador !== btn && operador)){
+        guardarOperador(btn);
+        guardarOperadorHistorial(btn);
+        cambiarBtn("");
+      }
         //Evitar operacion sin escribir antes
         //algun numero
       if(pantalla === "") return;
@@ -82,11 +86,63 @@ function App() {
         cambiarHistorial("");
        }
 
+       if(btn === "+"){
+         guardarHistorial("+");
+
+         if(!numero1){
+            guardarNumero1(parseFloat(pantalla));
+            guardarOperador("+");
+         }else if(!numero2){
+            guardarNumero2(parseFloat(pantalla))
+         }
+         hayPf(false);
+         existePunto(false);
+         cambiarPantalla("");
+         cambiarBtn("");
+       }
+
+       if(btn === "-"){
+         guardarHistorial("-");
+
+         if(!numero1){
+            guardarNumero1(parseFloat(pantalla));
+            guardarOperador("-");
+         }else if(!numero2){
+            guardarNumero2(parseFloat(pantalla));
+         }
+         hayPf(false);
+         existePunto(false);
+         cambiarPantalla("");
+         cambiarBtn("");
+       }
+
     
       }//else
     }//if principal btn 
 
   },[btn]); //cierre useEffect
+
+
+  //Cada vez que haya un cambio en el numero 2
+  //Ejecuta la operacion y guardala en el total
+  useEffect(()=>{
+    //Evitamos su ejecucion al inicio de la app
+    if(operador){
+      if(operador==="+"){
+        let nuevoTotal = numero1 + numero2;
+        guardarNumero2(null);
+        guardarNumero1(nuevoTotal);
+        return;
+      }
+
+      if(operador==="-"){
+        let nuevoTotal = numero1 - numero2;
+        guardarNumero2(null);
+        guardarNumero1(nuevoTotal);
+        return;
+      }
+    }
+  },[numero2])
 
   //Cambiar valor en total
   const cambiarTotal = (nuevoTotal) =>{
@@ -109,7 +165,6 @@ function App() {
   return (
     <ContenedorCalculadora>
       <Pantalla 
-        infoPantalla = {infoPantalla}
         pantalla = {pantalla}
         historial = {historial}
       />

@@ -34,11 +34,11 @@ const PantallaActual = styled.div`
     justify-content: flex-end;
 `;
 
-const Pantalla = ({infoPantalla, pantalla, historial}) => {
+const Pantalla = ({pantalla, historial}) => {
     return ( 
         <CalPantalla>
             <PantallaHistorial>{historial}</PantallaHistorial>
-            <PantallaActual><span>{pantalla}</span></PantallaActual>
+            <PantallaActual><span>{pantalla===""?0:pantalla}</span></PantallaActual>
         </CalPantalla>
      );
 }
