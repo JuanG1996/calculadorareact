@@ -19,6 +19,8 @@ const PantallaHistorial = styled.div`
     align-items: flex-end;
     align-items: center;
     overflow: hidden;
+    word-wrap: break-word;
+    white-space: nowrap;
 `;
 
 const PantallaActual = styled.div`
