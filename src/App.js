@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import styled from "@emotion/styled";
 import Pantalla from './components/Pantalla';
 import Botones from './components/Botones';
@@ -10,6 +10,11 @@ const ContenedorCalculadora  = styled.div`
     border-radius: 5px;
     overflow: hidden;
     user-select: none;
+`;
+const NombreCreador = styled.div`
+  color: #e4d3cf;
+  font-size: 24px;
+  text-align: center;
 `;
 
 function App() {
@@ -27,18 +32,15 @@ function App() {
   const [numero1, guardarNumero1] = useState(null);
   //Operador actual con el que se esta trabajando
   const [operador, guardarOperador] = useState(null);
-  //Segundo numero ingresado
-  const [numero2, guardarNumero2] = useState(null);
 
 
   //Guardar que boton se hizo clic
   const [btn, cambiarBtn] = useState("");
-  //Total que se va guardamdp y no se muestra al usuario
-  const[total, guardarTotal] = useState(0);
   //Valor actual en la pantalla
   const [pantalla, cambiarPantalla] = useState("");
   //Pantalla de historial donde se muestra lo que ha hecho el usuario
   const [historial, cambiarHistorial] = useState("");
+  
 
   useEffect(()=>{
     //**Evitamos que se ejecute 
@@ -54,23 +56,27 @@ function App() {
         cambiarPantalla(pantalla + btn);
         cambiarBtn("");
         
-        //**Si NO se presiono un numero
+        //**Si es una operaciòn
       }else{
 
-      if(pantalla === "" && (operador !== btn && operador)){
+      if(operador && pantalla === "" && (btn !== "=" && btn !== "." && btn!== "=")){
         guardarOperador(btn);
         guardarOperadorHistorial(btn);
         cambiarBtn("");
+        return;
       }
         //Evitar operacion sin escribir antes
         //algun numero
       if(pantalla === "") return;
 
       //Colocando solo 1 punto en pantalla
-       if(btn === "." && !punto){
-        existePunto(true);
-        hayPf(true);
-        cambiarPantalla(pantalla + ".");
+       if(btn === "."){
+        if(!punto){
+          cambiarPantalla(pantalla + ".");
+          existePunto(true);
+          hayPf(true);
+        }
+        return;
        }
 
        //Reseteando valores al original
@@ -79,42 +85,48 @@ function App() {
         hayPf(false);
         guardarNumero1(null);
         guardarOperador(null);
-        guardarNumero2(null);
         cambiarBtn("");
-        guardarTotal(0);
         cambiarPantalla("");
         cambiarHistorial("");
+        return;
        }
 
-       if(btn === "+"){
-         guardarHistorial("+");
-
-         if(!numero1){
-            guardarNumero1(parseFloat(pantalla));
-            guardarOperador("+");
-         }else if(!numero2){
-            guardarNumero2(parseFloat(pantalla))
-         }
-         hayPf(false);
-         existePunto(false);
-         cambiarPantalla("");
-         cambiarBtn("");
+       //Eliminar punto final si no se agrego nada
+       //Antes de una operacion
+       if(pf){
+        let pantallaSinPunto = pantalla.slice(0, pantalla.length - 1);
+        cambiarPantalla(pantallaSinPunto);
        }
 
-       if(btn === "-"){
-         guardarHistorial("-");
-
-         if(!numero1){
-            guardarNumero1(parseFloat(pantalla));
-            guardarOperador("-");
-         }else if(!numero2){
-            guardarNumero2(parseFloat(pantalla));
-         }
-         hayPf(false);
-         existePunto(false);
-         cambiarPantalla("");
-         cambiarBtn("");
-       }
+       if(numero1){
+         if(btn==="="){
+          //Ejecuta la operacion anterior
+          let valorFinal = realizarOperacion();          
+          cambiarPantalla(valorFinal);
+          
+          //Reset de valores
+          existePunto(false);
+          hayPf(false);
+          guardarNumero1(null);
+          guardarOperador(null);
+          cambiarBtn("");
+          cambiarHistorial("");
+          return;
+         }else{
+           //Ejecuta la operacion anterior
+           guardarNumero1(realizarOperacion()); 
+          }
+        }else{
+          if(btn === "=") return;
+          guardarNumero1(parseFloat(pantalla));
+          guardarHistorial(btn);
+        }
+        //reset pantalla
+        cambiarPantalla("");
+        
+       guardarOperador(btn);
+       guardarHistorial(btn);
+       return;
 
     
       }//else
@@ -122,38 +134,33 @@ function App() {
 
   },[btn]); //cierre useEffect
 
-
-  //Cada vez que haya un cambio en el numero 2
-  //Ejecuta la operacion y guardala en el total
-  useEffect(()=>{
-    //Evitamos su ejecucion al inicio de la app
-    if(operador){
-      if(operador==="+"){
-        let nuevoTotal = numero1 + numero2;
-        guardarNumero2(null);
-        guardarNumero1(nuevoTotal);
-        return;
-      }
-
-      if(operador==="-"){
-        let nuevoTotal = numero1 - numero2;
-        guardarNumero2(null);
-        guardarNumero1(nuevoTotal);
-        return;
-      }
+  //Realizar Operacion Anterior
+  function realizarOperacion(){
+    let nuevoValor;
+    if(operador === "+"){
+      nuevoValor = numero1 + parseFloat(pantalla);
     }
-  },[numero2])
-
-  //Cambiar valor en total
-  const cambiarTotal = (nuevoTotal) =>{
-    guardarTotal(nuevoTotal);
-    console.log("El nuevo total es: ", nuevoTotal);
-    console.log("#########");
+    
+    if(operador === "-"){
+       nuevoValor = numero1 - parseFloat(pantalla);
+       
+      }
+      
+      if(operador === "/"){
+       nuevoValor = numero1 / parseFloat(pantalla);
+       
+      }
+      
+      if(operador === "x"){
+        nuevoValor = numero1 * parseFloat(pantalla);
+     }
+     return nuevoValor;
   }
+
 
   //Cambiar el ultimo operador del historial
   const guardarOperadorHistorial = (oper)=>{
-    const historialSinOperador = historial.slice(0, historial.length - 1);
+    let historialSinOperador = historial.slice(0, historial.length - 1);
     cambiarHistorial(historialSinOperador + oper);
   }
 
@@ -163,6 +170,7 @@ function App() {
   }
 
   return (
+    <Fragment>
     <ContenedorCalculadora>
       <Pantalla 
         pantalla = {pantalla}
@@ -172,6 +180,8 @@ function App() {
         cambiarBtn = {cambiarBtn}
       />
     </ContenedorCalculadora>
+    <NombreCreador>Juan Antonio Gaytán Sustaita</NombreCreador>
+    </Fragment>
   );
 }
 

@@ -34,7 +34,7 @@ const PantallaActual = styled.div`
     justify-content: flex-end;
 `;
 
-const Pantalla = ({pantalla, historial}) => {
+const Pantalla = ({pantalla, historial, valorfinal}) => {
     return ( 
         <CalPantalla>
             <PantallaHistorial>{historial}</PantallaHistorial>
